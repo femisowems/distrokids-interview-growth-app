@@ -27,6 +27,7 @@ const workflowSteps = ['Brief', 'Generate', 'Review'] as const;
 export function CampaignComposer() {
   const [result, setResult] = useState('Select a campaign goal and generate a launch brief.');
   const [status, setStatus] = useState<'ready' | 'generating' | 'done'>('ready');
+  const [savedId, setSavedId] = useState<string | null>(null);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -62,6 +63,56 @@ export function CampaignComposer() {
     trackEvent('campaign_brief_generated', { artist: values.artist, releaseTitle: values.releaseTitle });
   }
 
+  async function saveDraft() {
+    const values = form.getValues();
+    setStatus('generating');
+    const res = await fetch('/api/briefs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        artist: values.artist,
+        releaseTitle: values.releaseTitle,
+        audience: values.audience,
+        goal: values.goal,
+        result,
+        status: 'draft'
+      })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setSavedId(data.id);
+      setStatus('done');
+    } else {
+      setStatus('ready');
+    }
+  }
+
+  async function publishBrief() {
+    const values = form.getValues();
+    setStatus('generating');
+    const res = await fetch('/api/briefs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        artist: values.artist,
+        releaseTitle: values.releaseTitle,
+        audience: values.audience,
+        goal: values.goal,
+        result,
+        status: 'published'
+      })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setSavedId(data.id);
+      setStatus('done');
+    } else {
+      setStatus('ready');
+    }
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
       <Card className="glass">
@@ -92,15 +143,19 @@ export function CampaignComposer() {
               );
             })}
           </div>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Input {...form.register('artist')} placeholder="Artist" />
             <Input {...form.register('releaseTitle')} placeholder="Release title" />
             <Input {...form.register('audience')} placeholder="Audience" />
             <Textarea {...form.register('goal')} placeholder="Primary goal" />
-            <Button type="submit" variant="accent" className="w-full" disabled={status === 'generating'}>
-              <CalendarDays className="h-4 w-4" />
-              {status === 'generating' ? 'Generating brief...' : 'Generate launch brief'}
-            </Button>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <Button type="submit" variant="accent" className="w-full" disabled={status === 'generating'}>
+                <CalendarDays className="h-4 w-4" />
+                {status === 'generating' ? 'Generating brief...' : 'Generate launch brief'}
+              </Button>
+              <Button type="button" variant="outline" className="w-full" onClick={saveDraft} disabled={status === 'generating'}>Save draft</Button>
+              <Button type="button" variant="ghost" className="w-full" onClick={publishBrief} disabled={status === 'generating'}>Publish</Button>
+            </div>
           </form>
           <div className="text-xs uppercase tracking-[0.3em] text-white/36">Prompt preview</div>
           <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm leading-6 text-white/72">{prompt}</div>
@@ -122,6 +177,11 @@ export function CampaignComposer() {
         <CardBody>
           <div className="rounded-3xl border border-white/8 bg-[linear-gradient(180deg,rgba(125,249,255,0.08),rgba(255,255,255,0.03))] p-6 text-sm leading-7 text-white/84">
             {result}
+            {savedId && (
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-3 text-sm">
+                Saved: <a className="text-accent-400 underline" href={`/cms`}>Brief {savedId}</a>
+              </div>
+            )}
           </div>
         </CardBody>
       </Card>

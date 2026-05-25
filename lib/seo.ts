@@ -20,14 +20,12 @@ export function buildMetaTags(title: string, description: string, pathname: stri
   };
 }
 
+import { releases } from './mock';
+
 export function buildSitemapEntries() {
-  return [
-    '/',
-    '/studio',
-    '/landing/afterimage',
-    '/experiments',
-    '/analytics',
-    '/seo',
-    '/cms'
-  ];
+  const staticRoutes = ['/', '/studio', '/experiments', '/analytics', '/seo', '/cms'];
+
+  const releaseRoutes = releases.map((r) => `/landing/${r.slug}`);
+
+  return [...staticRoutes, ...releaseRoutes];
 }
