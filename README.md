@@ -28,6 +28,27 @@ DistroKid Growth OS is a Next.js 15 App Router workspace for planning, generatin
 - Shared social preview generation for release pages
 - API routes for AI generation, experiment assignment, and event tracking
 
+## Pages And Routes
+
+### App Pages
+
+- `/` - main growth OS homepage and launch overview
+- `/studio` - campaign studio with the AI launch brief composer
+- `/experiments` - experiment planning and winner tracking
+- `/analytics` - attribution, funnel, and event snapshot views
+- `/seo` - metadata, sitemap, and release SEO tooling
+- `/cms` - internal content and campaign management surface
+- `/landing/[slug]` - dynamic release landing pages for individual campaigns
+
+### Supporting Routes
+
+- `/api/ai/generate` - generates campaign briefs and other AI-assisted marketing output
+- `/api/experiments/assign` - assigns or records experiment variants
+- `/api/track` - accepts analytics and product events
+- `/robots.txt` - crawler instructions
+- `/sitemap.xml` - generated sitemap for public routes
+- `/landing/[slug]/opengraph-image` - social preview image generation for release pages
+
 ## Repository Layout
 
 - `app/` contains routes, layouts, and route handlers
