@@ -63,7 +63,7 @@ export default function StudioPage() {
                     <div className="text-xs uppercase tracking-[0.24em] text-white/44">{release.status}</div>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Button asChild size="sm" variant="accent"><Link href={`/landing/${slugify(release.title)}`}>Open landing page</Link></Button>
+                    <Button asChild size="sm" variant="accent"><Link href={`/landing/${release.slug}`}>Open landing page</Link></Button>
                     <Button asChild size="sm" variant="outline"><Link href="/seo">Edit metadata</Link></Button>
                   </div>
                 </div>

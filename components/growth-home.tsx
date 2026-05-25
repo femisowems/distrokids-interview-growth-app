@@ -50,8 +50,8 @@ export function GrowthHome() {
               Build landing pages, experiment with conversion systems, orchestrate AI marketing, and read the full story of a release from first click to retained fan.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button variant="accent" size="lg">Create release campaign</Button>
-              <Button variant="outline" size="lg">View the launch OS</Button>
+                <Button asChild variant="accent" size="lg"><Link href="/studio">Create release campaign</Link></Button>
+                <Button asChild variant="outline" size="lg"><Link href="#launch-preview">View launch preview</Link></Button>
             </div>
             <div className="mt-10 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {analyticsHighlights.map((item) => (
@@ -86,10 +86,11 @@ export function GrowthHome() {
                     {landingPreview.map((section, index) => (
                       <motion.div
                         key={section.id}
+                        id={section.anchor}
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.08 }}
-                        className="rounded-2xl border border-white/8 bg-white/5 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/5 p-3 scroll-mt-24"
                       >
                         <div className="text-[10px] uppercase tracking-[0.24em] text-white/36">{section.type}</div>
                         <div className="mt-8 h-20 rounded-xl bg-gradient-to-br from-white/12 to-white/4" />
@@ -97,6 +98,13 @@ export function GrowthHome() {
                       </motion.div>
                     ))}
                   </div>
+                    <div className="mt-4 flex flex-wrap gap-2" id="launch-preview">
+                      {landingPreview.map((section) => (
+                        <Button key={section.id} asChild size="sm" variant="ghost" className="rounded-full border border-white/8 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.22em] text-white/56">
+                          <a href={`#${section.anchor}`}>{section.type}</a>
+                        </Button>
+                      ))}
+                    </div>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {landingThemes.map((theme) => (
