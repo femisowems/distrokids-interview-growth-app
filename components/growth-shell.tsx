@@ -36,7 +36,9 @@ export function GrowthShell({ children }: Readonly<{ children: React.ReactNode }
 
           <div className="flex items-center gap-3">
             <Badge className="hidden md:inline-flex">PostHog + Supabase + OpenAI</Badge>
-            <Button variant="accent" size="sm">Launch campaign</Button>
+            <Button asChild variant="accent" size="sm">
+              <Link href="/studio">Launch campaign</Link>
+            </Button>
           </div>
         </div>
       </header>

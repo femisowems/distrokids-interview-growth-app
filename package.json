@@ -2,30 +2,11 @@
   "name": "distrokids-growth-app",
   "version": "0.1.0",
   "private": true,
-  "description": "DistroKid Growth OS is a Next.js 15 marketing workspace for music launches, campaign orchestration, experiments, analytics, and SEO workflows.",
-  "keywords": [
-    "nextjs",
-    "music-marketing",
-    "growth",
-    "campaigns",
-    "analytics",
-    "experiments",
-    "seo",
-    "supabase",
-    "posthog",
-    "openai"
-  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck",
-    "clean": "rm -rf .next coverage"
-  },
-  "engines": {
-    "node": ">=20.0.0"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

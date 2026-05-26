@@ -37,7 +37,6 @@ export type Artist = {
 export type Release = {
   id: string;
   artistId: string;
-  slug: string;
   title: string;
   releaseDate: string;
   preSaves: number;

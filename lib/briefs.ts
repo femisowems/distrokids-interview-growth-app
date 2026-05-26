@@ -1,45 +1,46 @@
 export type Brief = {
   id: string;
-  artist: string;
-  releaseTitle: string;
-  audience: string;
-  goal: string;
-  result?: string;
-  status: 'draft' | 'published';
+  artist?: string;
+  releaseTitle?: string;
+  audience?: string;
+  goal?: string;
+  summary?: string;
   createdAt: string;
-  publishedAt?: string;
+  publishedAt?: string | null;
 };
 
 const briefs: Brief[] = [];
 
 function generateId() {
-  // Prefer the runtime crypto API when available (Node 20+ / Edge runtime)
-  // Fallback to a simple time+random hex string for older environments.
-  if (typeof globalThis !== 'undefined' && typeof (globalThis as any).crypto?.randomUUID === 'function') {
-    return (globalThis as any).crypto.randomUUID();
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
   }
-
-  const rand = Math.floor(Math.random() * 0xfffff).toString(16);
-  return `${Date.now().toString(16)}-${rand}`;
+  // Fallback
+  return Math.random().toString(36).slice(2, 9);
 }
 
-export function listBriefs() {
-  return briefs.slice().reverse();
-}
-
-export function addBrief(payload: Omit<Partial<Brief>, 'id' | 'createdAt'> & { artist: string; releaseTitle: string; audience: string; goal: string; status: 'draft' | 'published' }) {
+export function addBrief(payload: Partial<Brief>) {
+  const now = new Date().toISOString();
   const brief: Brief = {
     id: generateId(),
     artist: payload.artist,
     releaseTitle: payload.releaseTitle,
     audience: payload.audience,
     goal: payload.goal,
-    result: payload.result,
-    status: payload.status,
-    createdAt: new Date().toISOString(),
-    publishedAt: payload.status === 'published' ? new Date().toISOString() : undefined
+    summary: payload.summary,
+    createdAt: now,
+    publishedAt: payload.publishedAt ?? null
   };
-
-  briefs.push(brief);
+  briefs.unshift(brief);
   return brief;
 }
+
+export function getBriefs() {
+  return briefs;
+}
+
+export function clearBriefs() {
+  briefs.length = 0;
+}
+
+export default { addBrief, getBriefs, clearBriefs };

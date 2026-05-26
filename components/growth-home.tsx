@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { campaigns, experiments, landingSections, landingThemes, releases, artists, aiGenerations, analyticsEvents } from '@/lib/mock';
+import PlaybookManager from '@/components/playbook/playbook-manager';
 import { conversionRate, winnerForExperiment } from '@/lib/experiments';
 import { renderLandingSections } from '@/lib/landing-page';
 import { buildMetaTags } from '@/lib/seo';
@@ -50,8 +51,12 @@ export function GrowthHome() {
               Build landing pages, experiment with conversion systems, orchestrate AI marketing, and read the full story of a release from first click to retained fan.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild variant="accent" size="lg"><Link href="/studio">Create release campaign</Link></Button>
-                <Button asChild variant="outline" size="lg"><Link href="#launch-preview">View launch preview</Link></Button>
+              <Button asChild variant="accent" size="lg">
+                <Link href="/studio">Create release campaign</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/#launch-preview">View the launch OS</Link>
+              </Button>
             </div>
             <div className="mt-10 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {analyticsHighlights.map((item) => (
@@ -66,7 +71,7 @@ export function GrowthHome() {
             </div>
           </motion.div>
 
-          <motion.div {...motionCard} transition={{ ...motionCard.transition, delay: 0.1 }}>
+          <motion.div id="launch-preview" {...motionCard} transition={{ ...motionCard.transition, delay: 0.1 }}>
             <Card className="relative overflow-hidden border-white/10 bg-[#0a1324]/90 shadow-glow">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(125,249,255,0.18),transparent_36%),linear-gradient(160deg,rgba(255,255,255,0.05),transparent_42%)]" />
               <CardBody className="relative space-y-6 p-6">
@@ -86,11 +91,10 @@ export function GrowthHome() {
                     {landingPreview.map((section, index) => (
                       <motion.div
                         key={section.id}
-                        id={section.anchor}
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.08 }}
-                        className="rounded-2xl border border-white/8 bg-white/5 p-3 scroll-mt-24"
+                        className="rounded-2xl border border-white/8 bg-white/5 p-3"
                       >
                         <div className="text-[10px] uppercase tracking-[0.24em] text-white/36">{section.type}</div>
                         <div className="mt-8 h-20 rounded-xl bg-gradient-to-br from-white/12 to-white/4" />
@@ -98,13 +102,6 @@ export function GrowthHome() {
                       </motion.div>
                     ))}
                   </div>
-                    <div className="mt-4 flex flex-wrap gap-2" id="launch-preview">
-                      {landingPreview.map((section) => (
-                        <Button key={section.id} asChild size="sm" variant="ghost" className="rounded-full border border-white/8 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.22em] text-white/56">
-                          <a href={`#${section.anchor}`}>{section.type}</a>
-                        </Button>
-                      ))}
-                    </div>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {landingThemes.map((theme) => (
@@ -272,6 +269,7 @@ export function GrowthHome() {
       </section>
 
       <AnimatePresence />
+      <PlaybookManager />
     </div>
   );
 }

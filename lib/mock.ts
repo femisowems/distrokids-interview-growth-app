@@ -7,9 +7,9 @@ export const artists: Artist[] = [
 ];
 
 export const releases: Release[] = [
-  { id: 'release-1', artistId: 'artist-1', slug: 'afterimage', title: 'Afterimage', releaseDate: '2026-06-07', preSaves: 8921, status: 'live' },
-  { id: 'release-2', artistId: 'artist-2', slug: 'soft-static', title: 'Soft Static', releaseDate: '2026-06-12', preSaves: 5410, status: 'scheduled' },
-  { id: 'release-3', artistId: 'artist-3', slug: 'night-driver', title: 'Night Driver', releaseDate: '2026-06-21', preSaves: 12418, status: 'draft' }
+  { id: 'release-1', artistId: 'artist-1', title: 'Afterimage', releaseDate: '2026-06-07', preSaves: 8921, status: 'live' },
+  { id: 'release-2', artistId: 'artist-2', title: 'Soft Static', releaseDate: '2026-06-12', preSaves: 5410, status: 'scheduled' },
+  { id: 'release-3', artistId: 'artist-3', title: 'Night Driver', releaseDate: '2026-06-21', preSaves: 12418, status: 'draft' }
 ];
 
 export const campaigns: Campaign[] = [

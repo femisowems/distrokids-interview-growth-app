@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,12 +23,8 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-const workflowSteps = ['Brief', 'Generate', 'Review'] as const;
-
 export function CampaignComposer() {
   const [result, setResult] = useState('Select a campaign goal and generate a launch brief.');
-  const [status, setStatus] = useState<'ready' | 'generating' | 'done'>('ready');
-  const [savedId, setSavedId] = useState<string | null>(null);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -43,8 +40,7 @@ export function CampaignComposer() {
     [form]
   );
 
-  async function onSubmit(values: FormValues) {
-    setStatus('generating');
+  async function generateBrief(values: FormValues) {
     const tone = landingThemes[0].name;
     const response = await fetch('/api/ai/generate', {
       method: 'POST',
@@ -59,129 +55,90 @@ export function CampaignComposer() {
 
     const data = await response.json();
     setResult(data.result.body);
-    setStatus('done');
     trackEvent('campaign_brief_generated', { artist: values.artist, releaseTitle: values.releaseTitle });
+    return data.result.body as string;
   }
 
-  async function saveDraft() {
-    const values = form.getValues();
-    setStatus('generating');
-    const res = await fetch('/api/briefs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        artist: values.artist,
-        releaseTitle: values.releaseTitle,
-        audience: values.audience,
-        goal: values.goal,
-        result,
-        status: 'draft'
-      })
-    });
+  async function onSubmit(values: FormValues) {
+    await generateBrief(values);
+  }
 
-    if (res.ok) {
-      const data = await res.json();
-      setSavedId(data.id);
-      setStatus('done');
-    } else {
-      setStatus('ready');
+  async function publishBrief(summary: string, values: FormValues) {
+    try {
+      const res = await fetch('/api/briefs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          artist: values.artist,
+          releaseTitle: values.releaseTitle,
+          audience: values.audience,
+          goal: values.goal,
+          summary,
+          publishedAt: new Date().toISOString()
+        })
+      });
+      return res.ok;
+    } catch (e) {
+      return false;
     }
   }
 
-  async function publishBrief() {
-    const values = form.getValues();
-    setStatus('generating');
-    const res = await fetch('/api/briefs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        artist: values.artist,
-        releaseTitle: values.releaseTitle,
-        audience: values.audience,
-        goal: values.goal,
-        result,
-        status: 'published'
-      })
-    });
+  const searchParams = useSearchParams();
+  const ranPlaybook = useRef(false);
 
-    if (res.ok) {
-      const data = await res.json();
-      setSavedId(data.id);
-      setStatus('done');
-    } else {
-      setStatus('ready');
+  useEffect(() => {
+    try {
+      const playbook = searchParams?.get('playbook');
+      const autopublish = searchParams?.get('autopublish');
+      if (playbook === '1' && !ranPlaybook.current) {
+        ranPlaybook.current = true;
+        const values: FormValues = {
+          artist: form.getValues('artist') || 'Nova Rue',
+          releaseTitle: form.getValues('releaseTitle') || 'Afterimage',
+          audience: form.getValues('audience') || 'alt-pop listeners on TikTok',
+          goal: form.getValues('goal') || 'drive pre-saves and email signups'
+        };
+        form.reset(values);
+        (async () => {
+          const summary = await generateBrief(values);
+          if (autopublish === '1') {
+            await publishBrief(summary, values);
+          }
+        })();
+      }
+    } catch (e) {
+      // ignore
     }
-  }
+  }, [searchParams]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
       <Card className="glass">
         <CardHeader>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <CardTitle className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-neon-400" /> Campaign composer</CardTitle>
-              <CardDescription>Generate a launch brief with AI and wire it into the release workflow.</CardDescription>
-            </div>
-            <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.24em] text-white/54">
-              {status === 'ready' ? 'Ready to generate' : status === 'generating' ? 'Generating brief' : 'Brief ready'}
-            </div>
-          </div>
+          <CardTitle className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-neon-400" /> Campaign composer</CardTitle>
+          <CardDescription>Generate a launch brief with AI and wire it into the release workflow.</CardDescription>
         </CardHeader>
         <CardBody className="space-y-4">
-          <div className="grid gap-2 sm:grid-cols-3">
-            {workflowSteps.map((step, index) => {
-              const active = (status === 'ready' && index === 0) || (status === 'generating' && index <= 1) || (status === 'done' && index <= 2);
-
-              return (
-                <div
-                  key={step}
-                  className={`rounded-2xl border px-3 py-2 text-sm transition ${active ? 'border-neon-400/30 bg-neon-400/10 text-white' : 'border-white/8 bg-white/5 text-white/48'}`}
-                >
-                  <div className="text-[10px] uppercase tracking-[0.28em]">Step {index + 1}</div>
-                  <div className="mt-1">{step}</div>
-                </div>
-              );
-            })}
-          </div>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Input {...form.register('artist')} placeholder="Artist" />
             <Input {...form.register('releaseTitle')} placeholder="Release title" />
             <Input {...form.register('audience')} placeholder="Audience" />
             <Textarea {...form.register('goal')} placeholder="Primary goal" />
-            <div className="grid gap-2 sm:grid-cols-3">
-              <Button type="submit" variant="accent" className="w-full" disabled={status === 'generating'}>
-                <CalendarDays className="h-4 w-4" />
-                {status === 'generating' ? 'Generating brief...' : 'Generate launch brief'}
-              </Button>
-              <Button type="button" variant="outline" className="w-full" onClick={saveDraft} disabled={status === 'generating'}>Save draft</Button>
-              <Button type="button" variant="ghost" className="w-full" onClick={publishBrief} disabled={status === 'generating'}>Publish</Button>
-            </div>
+            <Button type="submit" variant="accent" className="w-full"><CalendarDays className="h-4 w-4" /> Generate launch brief</Button>
           </form>
           <div className="text-xs uppercase tracking-[0.3em] text-white/36">Prompt preview</div>
-          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm leading-6 text-white/72">{prompt}</div>
+          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm text-white/72">{prompt}</div>
         </CardBody>
       </Card>
 
       <Card className="glass">
         <CardHeader>
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <CardTitle>Editable output</CardTitle>
-              <CardDescription>Use this draft as a launch brief, email source doc, or SEO plan.</CardDescription>
-            </div>
-            <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.24em] text-white/54">
-              {status === 'done' ? 'Synced to launch plan' : 'Live preview'}
-            </div>
-          </div>
+          <CardTitle>Editable output</CardTitle>
+          <CardDescription>Use this draft as a launch brief, email source doc, or SEO plan.</CardDescription>
         </CardHeader>
         <CardBody>
           <div className="rounded-3xl border border-white/8 bg-[linear-gradient(180deg,rgba(125,249,255,0.08),rgba(255,255,255,0.03))] p-6 text-sm leading-7 text-white/84">
             {result}
-            {savedId && (
-              <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-3 text-sm">
-                Saved: <a className="text-accent-400 underline" href={`/cms`}>Brief {savedId}</a>
-              </div>
-            )}
           </div>
         </CardBody>
       </Card>

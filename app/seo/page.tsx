@@ -1,7 +1,6 @@
 import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { buildSitemapEntries } from '@/lib/seo';
 import { landingPageMetadata, schemaForReleasePage } from '@/lib/landing-page';
-import SeoPreview from '@/components/seo/seo-preview';
 
 export default function SeoPage() {
   const sitemap = buildSitemapEntries();
@@ -23,7 +22,8 @@ export default function SeoPage() {
             <CardDescription>SSR-friendly tags for release pages.</CardDescription>
           </CardHeader>
           <CardBody className="space-y-4">
-            <SeoPreview />
+            <pre className="overflow-auto rounded-3xl border border-white/8 bg-black/20 p-4 text-xs text-white/72">{JSON.stringify(metadata, null, 2)}</pre>
+            <pre className="overflow-auto rounded-3xl border border-white/8 bg-black/20 p-4 text-xs text-white/72">{JSON.stringify(schema, null, 2)}</pre>
           </CardBody>
         </Card>
         <Card className="glass">
