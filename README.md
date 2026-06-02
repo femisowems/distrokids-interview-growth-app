@@ -1,5 +1,8 @@
 # ⚡️ DistroKid Growth OS
 
+> [!IMPORTANT]
+> **Disclaimer:** This project was created as part of an interview process and is not affiliated with, endorsed by, or operated by DistroKid.
+
 A cinematic, experiment-driven marketing orchestrator and campaign delivery engine for music launches. Designed for high-impact visual aesthetics, automated audience funnels, real-time A/B testing, and programmatic release page generation.
 
 ---

@@ -75,6 +75,11 @@ export default function PlaybookManager() {
                   flow: create → preview → publish. Use the guided steps below
                   or explore manually.
                 </p>
+                <div className="mt-4 rounded-lg bg-white/5 border border-white/10 p-3 text-xs text-white/50">
+                  <strong>Notice:</strong> This application was created as part
+                  of an interview process and is not affiliated with, endorsed
+                  by, or operated by DistroKid.
+                </div>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <Button

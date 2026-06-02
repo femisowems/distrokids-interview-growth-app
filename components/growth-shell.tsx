@@ -53,8 +53,17 @@ export function GrowthShell({
         </div>
       </header>
       <main>{children}</main>
-      <footer className="border-t border-white/8 px-5 py-8 text-center text-xs uppercase tracking-[0.28em] text-white/40 lg:px-8">
-        Growth engineering for artist launches
+      <footer className="border-t border-white/8 px-5 py-12 lg:px-8 bg-[#040a12]/50">
+        <div className="mx-auto max-w-7xl flex flex-col items-center gap-4 text-center">
+          <div className="text-xs uppercase tracking-[0.28em] text-white/40">
+            Growth engineering for artist launches
+          </div>
+          <div className="max-w-2xl text-[11px] leading-relaxed text-white/30 font-sans tracking-wide">
+            Disclaimer: This website was created solely as part of a developer
+            interview process. It is not affiliated with, endorsed by, or
+            operated by DistroKid.
+          </div>
+        </div>
       </footer>
     </div>
   );
